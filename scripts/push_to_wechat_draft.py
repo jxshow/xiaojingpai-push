@@ -11,7 +11,7 @@
     python push_to_wechat_draft.py "文章.md" --dry-run
     python push_to_wechat_draft.py "文章.md" --cover "封面.jpg"
 
-    # HTML 模式(推荐):吃 gzh-design-skill 排版好的 HTML
+    # HTML 模式(推荐):吃 小鲸排 排版好的 HTML
     python push_to_wechat_draft.py "已排版.html" --html --title "自定义标题"
     python push_to_wechat_draft.py "已排版.html" --html --cover "封面.jpg" --push
 
@@ -34,19 +34,12 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-# gzh-design-skill 的安装路径(与 .env 同级目录)
-GZH_SKILL_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..", "..", "Users", "xhshow", ".workbuddy", "skills", "gzh-design-skill"
-)
-# 上面拼出来的路径在 Windows 上不可靠,实际使用时通过环境变量覆盖
-GZH_VALIDATOR = os.environ.get(
-    "GZH_VALIDATOR",
-    r"C:\Users\xhshow\.workbuddy\skills\gzh-design-skill\scripts\validate_gzh_html.py",
-)
-GZH_PREVIEW = os.environ.get(
-    "GZH_PREVIEW",
-    r"C:\Users\xhshow\.workbuddy\skills\gzh-design-skill\scripts\wrap_preview.py",
+# 小鲸排 Skill 的安装位置(与 .env 同级目录),可用环境变量覆盖
+SKILLS_DIR = os.path.join(os.path.expanduser("~"), ".workbuddy", "skills")
+XJP_DIR = os.environ.get("XJP_DIR", os.path.join(SKILLS_DIR, "xiaojingpai"))
+VALIDATOR = os.environ.get(
+    "XJP_VALIDATOR",
+    os.path.join(XJP_DIR, "scripts", "validate_html.py"),
 )
 
 try:
@@ -354,7 +347,7 @@ def md_to_html(md):
     return "\n".join(out)
 
 
-# ---------------- 读取 HTML 输入(供 gzh-design-skill 排版产物) ----------------
+# ---------------- 读取 HTML 输入(供 小鲸排 排版产物) ----------------
 def read_html_input(path):
     """读 HTML 文件并尝试提取标题(优先 H1,其次 <title>,再退化到文件名)。"""
     with open(path, "r", encoding="utf-8") as fh:
@@ -372,15 +365,15 @@ def read_html_input(path):
     return html, title
 
 
-def run_gzh_validator(html_path):
-    """调 gzh-design-skill 的 validate_gzh_html.py 跑合规校验,有 ERROR 就退出。"""
-    if not os.path.exists(GZH_VALIDATOR):
-        print("[warn] 未找到 gzh-design-skill 校验脚本: %s" % GZH_VALIDATOR)
-        print("       跳过校验。建议设置环境变量 GZH_VALIDATOR 指向实际路径。")
+def run_validator(html_path):
+    """调小鲸排的 validate_html.py 跑合规校验,有 ERROR 就退出。"""
+    if not os.path.exists(VALIDATOR):
+        print("[warn] 未找到 小鲸排 校验脚本: %s" % VALIDATOR)
+        print("       跳过校验。建议设置环境变量 VALIDATOR 指向实际路径。")
         return
     try:
         proc = subprocess.run(
-            [sys.executable, GZH_VALIDATOR, html_path],
+            [sys.executable, VALIDATOR, html_path],
             capture_output=True, text=True, timeout=30,
         )
     except Exception as e:
@@ -388,7 +381,7 @@ def run_gzh_validator(html_path):
         return
     print(proc.stdout.rstrip())
     if proc.returncode != 0:
-        sys.exit("x gzh-design-skill 校验未通过,先修 HTML 再推送。")
+        sys.exit("x 小鲸排 校验未通过,先修 HTML 再推送。")
 
 
 # ---------------- 上传封面(可选) ----------------
@@ -430,7 +423,7 @@ def main():
     ap = argparse.ArgumentParser(description="推送 Markdown / 已排版 HTML 到公众号草稿箱")
     ap.add_argument("article", nargs="?", help="Markdown 或 HTML 文件路径")
     ap.add_argument("--html", action="store_true",
-                    help="把 --article 当作 HTML 输入(适用于 gzh-design-skill 排版产物)")
+                    help="把 --article 当作 HTML 输入(适用于 小鲸排 排版产物)")
     ap.add_argument("--title", help="覆盖文章标题")
     ap.add_argument("--author", default="", help="作者名")
     ap.add_argument("--digest", default="", help="摘要(留空由微信自动截取)")
@@ -442,7 +435,7 @@ def main():
     ap.add_argument("--check", action="store_true", help="只校验凭据与网络")
     ap.add_argument("--dry-run", action="store_true", help="只生成 HTML, 不推送")
     ap.add_argument("--no-validate", action="store_true",
-                    help="跳过 gzh-design-skill 的合规校验(默认会跑)")
+                    help="跳过 小鲸排 的合规校验(默认会跑)")
     args = ap.parse_args()
 
     appid, secret = load_credentials()
@@ -461,7 +454,7 @@ def main():
         title = args.title or html_title or os.path.splitext(os.path.basename(args.article))[0]
         content = html.strip()
         if not args.no_validate:
-            run_gzh_validator(args.article)
+            run_validator(args.article)
     else:
         with open(args.article, "r", encoding="utf-8") as fh:
             md = fh.read()

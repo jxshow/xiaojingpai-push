@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-publish_pipeline.py —— 公众号排版发布流水线（把 gzh-design-skill 和推送链路串起来）
+publish_pipeline.py —— 小鲸排 Skill：公众号排版发布流水线（把排版产物和推送链路串起来）
 
 一条命令走完：已排版 HTML → 合规校验 → 预览页 → 主题色封面 → 推送草稿箱
 
@@ -16,7 +16,7 @@ publish_pipeline.py —— 公众号排版发布流水线（把 gzh-design-skill
     python publish_pipeline.py "已排版.html" --cover "我的封面.png"
 
 设计说明:
-    - 「排版」这步必须由 Agent 用 gzh-design-skill 完成(组件库是提示词文档，
+    - 「排版」这步必须由 Agent 用小鲸排排版引擎完成(组件库是提示词文档，
       不是代码)，本脚本负责排版之后的全部机械流程。
     - 主题可从文件名 `_排版_{中文名}({英文标识}).html` 自动推断，无需手填。
 """
@@ -35,12 +35,11 @@ except Exception:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PY = sys.executable  # 用当前解释器,保证 venv/依赖一致
 
-GZH_SKILL_DIR = os.environ.get(
-    "GZH_SKILL_DIR",
-    r"C:\Users\xhshow\.workbuddy\skills\gzh-design-skill",
+FLOW_DIR = os.environ.get(
+    "XJP_DIR",
+    os.path.join(os.path.expanduser("~"), ".workbuddy", "skills", "xiaojingpai"),
 )
-GZH_VALIDATOR = os.path.join(GZH_SKILL_DIR, "scripts", "validate_gzh_html.py")
-GZH_PREVIEW = os.path.join(GZH_SKILL_DIR, "scripts", "wrap_preview.py")
+VALIDATOR = os.path.join(FLOW_DIR, "scripts", "validate_html.py")
 PUSH_SCRIPT = os.path.join(BASE_DIR, "push_to_wechat_draft.py")
 COVER_SCRIPT = os.path.join(BASE_DIR, "make_cover.py")
 COVER_PY = os.environ.get(
@@ -109,7 +108,7 @@ def run(cmd, desc):
 def main():
     ap = argparse.ArgumentParser(
         description="公众号排版发布流水线: 校验 → 预览页 → 封面 → 推送草稿箱")
-    ap.add_argument("html", help="gzh-design-skill 排版产物 HTML 路径")
+    ap.add_argument("html", help="小鲸排排版产物 article.html 路径")
     ap.add_argument("--theme", help="主题 ID(留空则从文件名推断)")
     ap.add_argument("--title", help="文章标题(留空则从文件名推断)")
     ap.add_argument("--author", default="", help="作者名")
@@ -137,22 +136,22 @@ def main():
 
     # ---- 1/4 合规校验 ----
     idx += 1
-    print("\n%s 合规校验 (gzh-design-skill/validate_gzh_html.py)" % (STEP % (idx, total)))
-    if os.path.exists(GZH_VALIDATOR):
-        rc = run([PY, GZH_VALIDATOR, args.html], "validate")
+    print("\n%s 合规校验 (小鲸排 scripts/validate_html.py)" % (STEP % (idx, total)))
+    if os.path.exists(VALIDATOR):
+        rc = run([PY, VALIDATOR, args.html], "validate")
         if rc != 0:
             sys.exit("\nx 校验未通过(ERROR 必须清零), 修正 HTML 后重跑。")
     else:
-        print("     ! 未找到校验脚本, 跳过: %s" % GZH_VALIDATOR)
+        print("     ! 未找到校验脚本, 跳过: %s" % VALIDATOR)
 
     # ---- 2/4 预览页 ----
     idx += 1
-    print("\n%s 生成预览页 (右上角有「复制到公众号」按钮)" % (STEP % (idx, total)))
-    if os.path.exists(GZH_PREVIEW):
-        rc = run([PY, GZH_PREVIEW, args.html], "wrap_preview")
-        preview_path = os.path.splitext(args.html)[0] + "_预览.html"
+    print("\n%s 预览页 (排版输出的 preview.html 已带「复制到公众号」按钮)" % (STEP % (idx, total)))
+    preview_path = os.path.join(os.path.dirname(os.path.abspath(args.html)), "preview.html")
+    if os.path.exists(preview_path):
+        print("     OK %s" % preview_path)
     else:
-        print("     ! 未找到预览脚本, 跳过: %s" % GZH_PREVIEW)
+        print("     ! 未找到预览页, 跳过: %s" % preview_path)
         preview_path = None
 
     # ---- 3/4 封面 ----

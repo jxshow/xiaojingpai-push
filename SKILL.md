@@ -1,10 +1,10 @@
 ---
-name: jingxuan-draft-push
+name: xiaojingpai-push
 description: 用微信公众平台 AppID/AppSecret 走官方 API，把已排版的公众号 HTML 推送进草稿箱（自动合规校验 + 生成主题色封面 + 写入草稿）。当用户说"推送到公众号后台""推到草稿箱""排版后一键推送""发布到公众号"时使用。禁止为此使用浏览器扫码登录——凭据已在本机 .env，直接调 API。
 agent_created: true
 ---
 
-# jingxuan-draft-push · 公众号 API 推送
+# xiaojingpai-push · 小鲸排 Skill 的公众号 API 推送
 
 ## 最重要的一条：不要开浏览器
 
@@ -24,7 +24,7 @@ export PATH="/usr/bin:/bin:/c/Windows/System32:$PATH"
 export PYTHONIOENCODING=utf-8          # 中文不乱码
 PY="C:/Users/xhshow/.workbuddy/binaries/python/versions/3.13.12/python.exe"
 VP="C:/Users/xhshow/.workbuddy/binaries/python/envs/default/Scripts/python.exe"   # 带 Pillow，只给封面用
-SK="C:/Users/xhshow/.workbuddy/skills/jingxuan-draft-push/scripts"
+SK="C:/Users/xhshow/.workbuddy/skills/xiaojingpai-push/scripts"
 
 # ① 连通性自检（不写草稿）
 "$PY" "$SK/push_to_wechat_draft.py" --check
@@ -95,8 +95,8 @@ multipart 字段名 media；仅 JPG/PNG，且 < 1MB
 |---|---|
 | 作者 | `鲸选AI`（接口上限 8 字；标题上限 64 字） |
 | 封面尺寸 | 900×383，`make_cover.py` 生成 |
-| AGI绿 主色 | `#2ea250`（jingxuan-ai-gzh 的 agi-green，用 `--color` 传） |
-| 校验脚本 | `C:\Users\xhshow\.workbuddy\skills\gzh-design-skill\scripts\validate_gzh_html.py` |
+| AGI绿 主色 | `#2ea250`（xiaojingpai-render 的 agi-green，用 `--color` 传） |
+| 校验脚本 | `~/.workbuddy/skills/xiaojingpai/scripts/validate_html.py` |
 
 ## 已知坑
 
@@ -116,7 +116,7 @@ multipart 字段名 media；仅 JPG/PNG，且 < 1MB
 ```bash
 "$PY" - <<'EOF'
 import json,urllib.request
-t=json.load(open(r'C:\Users\xhshow\.workbuddy\skills\jingxuan-draft-push\scripts\.wechat_token_cache.json',encoding='utf-8'))['access_token']
+t=json.load(open(r'C:\Users\xhshow\.workbuddy\skills\xiaojingpai-push\scripts\.wechat_token_cache.json',encoding='utf-8'))['access_token']
 b=json.dumps({'offset':0,'count':5,'no_content':1}).encode()
 r=urllib.request.Request('https://api.weixin.qq.com/cgi-bin/draft/batchget?access_token='+t,data=b,headers={'Content-Type':'application/json'},method='POST')
 d=json.loads(urllib.request.urlopen(r,timeout=20).read().decode())

@@ -1,4 +1,4 @@
-# 公众号排版发布流水线 · 完整说明
+# 小鲸排 Skill · 公众号排版发布流水线 · 完整说明
 
 把 **排版（skill）** 和 **推送（官方 API）** 串成一条链路。全程不需要浏览器登录。
 
@@ -7,15 +7,14 @@
       │
       ▼
 ① 排版             ← 必须 Agent 介入（组件库是提示词文档，脚本替代不了）
-      │              gzh-design-skill（摸鱼绿/红白/石墨/禅意/票据/橄榄）
-      │              或 jingxuan-ai-gzh（字节绿/AGI绿/杂志绿/鲸选Pro蓝）
+      │              xiaojingpai-render（字节绿 / AGI绿 / 杂志绿 / 鲸选Pro蓝）
       ▼
    已排版.html（只含行内样式 + <span leaf=""> 包裹）
       │
       ▼
 ② 推送（一条命令走完 4 步）
-      ├─ 1/4  合规校验   gzh-design-skill/scripts/validate_gzh_html.py
-      ├─ 2/4  预览页     gzh-design-skill/scripts/wrap_preview.py（带「复制到公众号」按钮）
+      ├─ 1/4  合规校验   xiaojingpai/scripts/validate_html.py
+      ├─ 2/4  预览页     排版产物自带的 preview.html（带「复制到公众号」按钮）
       ├─ 3/4  主题色封面 make_cover.py（Pillow，900×383）
       └─ 4/4  写草稿箱   push_to_wechat_draft.py --html（cgi-bin/draft/add）
       │
@@ -32,29 +31,31 @@
 | 文件 | 职责 |
 |---|---|
 | `scripts/publish_pipeline.py` | 编排：校验 → 预览页 → 封面 → 推送 |
-| `scripts/make_cover.py` | 900×383 封面，`--theme`（6 套主题）或 `--color`（任意 hex，优先级更高） |
+| `scripts/make_cover.py` | 900×383 封面，`--theme`（小鲸排 4 套 + 上游 6 套）或 `--color`（任意 hex，优先级更高） |
 | `scripts/push_to_wechat_draft.py` | 推送主脚本。`--html` 模式吃排版产物；不加则走 Markdown 简易转换 |
 | `C:\Users\xhshow\.workbuddy\wechat\.env` | 凭据 `WECHAT_APPID` / `WECHAT_APPSECRET` |
 
-## make_cover.py 主题色对照（gzh-design-skill）
+## make_cover.py 主题色对照（小鲸排）
 
 | 主题 ID | 主色 | 适用 |
 |---|---|---|
-| `moyu-green` | `#059669` | 教程、测评、清单、工具盘点（默认） |
-| `red-white` | `#DC2626` | 深度分析、观点、力量感话题 |
-| `graphite` | `#52525B` | 设计、科技评论、专业观点 |
-| `zen` | `#4A5D52` | 禅意、极简生活、深度随笔 |
-| `moyu-ticket` | `#059669`+`#FCD34D` | 工具对比、创意评测 |
-| `olive` | `#1e1f23`+`#ed7b2f` | 内刊手记、深度评测、案例复盘 |
+| `agi-green` AGI绿 | `#2ea250` | **默认**。新闻解读、行业观察、叙事长文 |
+| `byte-green` 字节绿 | `#2ea250` | 工具实测、教程、功能清单 |
+| `magazine-green` 杂志绿 | `#2ea250` | 测评、快讯、工具盘点 |
+| `pro-blue` 鲸选Pro蓝 | `#0057ff` | 商业观察、专业长文 |
 
-jingxuan-ai-gzh 的主题不在上表内，直接用 `--color`：
+绿主题统一色带 `#2ea250 → #09fc3c`，封面色取 `#2ea250`。`--color` 优先级高于 `--theme`，传了 `--color` 就按传的走。
 
-| 主题 | 主色 |
+上游遗留主题仍兼容（一般不用）：
+
+| 主题 ID | 主色 |
 |---|---|
-| `byte-green` 字节渐变绿 | `#07C160` |
-| `agi-green` AGI绿 | `#2ea250` |
-| `magazine-green` 杂志绿 | 见 `jingxuan-ai-gzh/references/` |
-| `pro-blue` 鲸选Pro蓝 | 见 `jingxuan-ai-gzh/references/` |
+| `moyu-green` | `#059669` |
+| `red-white` | `#DC2626` |
+| `graphite` | `#52525B` |
+| `zen` | `#4A5D52` |
+| `moyu-ticket` | `#059669`+`#FCD34D` |
+| `olive` | `#1e1f23`+`#ed7b2f` |
 
 ## 环境依赖
 
@@ -88,7 +89,7 @@ jingxuan-ai-gzh 的主题不在上表内，直接用 `--color`：
 
 ```bash
 # 文章：苹果OV等抢点发布，"AI OS元周"，到底谁更能打？
-# 排版：jingxuan-ai-gzh 的 agi-green，48px 栈式大编号，66 处 span leaf
+# 排版：xiaojingpai-render 的 agi-green，48px 栈式大编号，66 处 span leaf
 
 "$VP" "$SK/make_cover.py" "苹果OV等抢点发布，“AI OS元周”，到底谁更能打？" "鲸选AI · AGI绿" \
     "D:/.../cover_agi-green.png" --color "#2ea250"

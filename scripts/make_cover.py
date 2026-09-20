@@ -7,11 +7,16 @@
     python make_cover.py "主标题" "副标题" [输出路径]
     python make_cover.py "主标题" "副标题" output.png --color "#059669"
 
-    # 主题模式:从 gzh-design-skill 的 theme-index.md 自动取色
-    python make_cover.py "主标题" "副标题" output.png --theme moyu-green
-    python make_cover.py "主标题" "副标题" output.png --theme red-white
+    # 主题模式:按主题 ID 自动取品牌色
+    python make_cover.py "主标题" "副标题" output.png --theme agi-green
 
-主题 ID 列表:
+主题 ID 列表(小鲸排):
+    agi-green       鲸选AGI绿     #2ea250   ← 默认
+    byte-green      鲸选字节绿    #2ea250
+    magazine-green  鲸选杂志绿    #2ea250
+    pro-blue        鲸选Pro蓝     #0057ff
+
+上游遗留主题(仍兼容):
     moyu-green      摸鱼绿     #059669
     red-white       红白色系   #DC2626
     graphite        石墨极简   #52525B
@@ -33,12 +38,17 @@ FONT_BOLD = r"C:\Windows\Fonts\msyhbd.ttc"
 FONT_REG = r"C:\Windows\Fonts\msyh.ttc"
 
 THEME_INDEX = os.environ.get(
-    "GZH_THEME_INDEX",
-    r"C:\Users\xhshow\.workbuddy\skills\gzh-design-skill\references\theme-index.md",
+    "XJP_THEME_INDEX",
+    os.path.join(os.path.expanduser("~"), ".workbuddy", "skills",
+                 "xiaojingpai-render", "references", "theme-index.md"),
 )
 
 # 主题 ID → 关键词,用来在 markdown 表格行里匹配
 THEME_KEYWORDS = {
+    "agi-green": "鲸选AGI绿",
+    "byte-green": "鲸选字节绿",
+    "magazine-green": "鲸选杂志绿",
+    "pro-blue": "鲸选Pro蓝",
     "moyu-green": "摸鱼绿",
     "red-white": "红白色系",
     "graphite": "石墨极简风",
@@ -47,8 +57,12 @@ THEME_KEYWORDS = {
     "olive": "橄榄手记",
 }
 
-# 主题默认配色(主色, 浅底, 强调),覆盖 gzh-design-skill 表格
+# 主题默认配色(主色, 浅底, 强调),覆盖 theme-index 表格
 THEME_DEFAULT_COLORS = {
+    "agi-green": ("#2ea250", "#EAF3DE", "#09fc3c"),
+    "byte-green": ("#2ea250", "#EAF3DE", "#09fc3c"),
+    "magazine-green": ("#2ea250", "#EAF3DE", "#09fc3c"),
+    "pro-blue": ("#0057ff", "#bfdae9", "#17b7de"),
     "moyu-green": ("#059669", "#A7F3D0", "#10B981"),
     "red-white": ("#DC2626", "#FECACA", "#EF4444"),
     "graphite": ("#52525B", "#A1A1AA", "#27272A"),
@@ -153,7 +167,7 @@ if __name__ == "__main__":
     ap.add_argument("subtitle", nargs="?", default="GPT-6 Astra 通关 48 关全记录")
     ap.add_argument("out", nargs="?", default=None)
     ap.add_argument("--theme", choices=list(THEME_KEYWORDS.keys()),
-                    help="主题 ID(从 gzh-design-skill theme-index 取色)")
+                    help="主题 ID(agi-green / byte-green / magazine-green / pro-blue)")
     ap.add_argument("--color", help="自定义主色 hex,优先级高于 --theme")
     args = ap.parse_args()
 
