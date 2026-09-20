@@ -1,6 +1,6 @@
 ---
 name: xiaojingpai-push
-description: 用微信公众平台 AppID/AppSecret 走官方 API，把已排版的公众号 HTML 推送进草稿箱（自动合规校验 + 生成主题色封面 + 写入草稿）。当用户说"推送到公众号后台""推到草稿箱""排版后一键推送""发布到公众号"时使用。禁止为此使用浏览器扫码登录——凭据已在本机 .env，直接调 API。
+description: 小鲸排 Skill · 草稿推送（xiaojingpai-push）：用微信公众平台 AppID/AppSecret 走官方 API，把已排版的公众号 HTML 推送进草稿箱（自动合规校验 + 生成主题色封面 + 写入草稿）。当用户说"推送到公众号后台""推到草稿箱""排版后一键推送""发布到公众号"时使用。禁止为此使用浏览器扫码登录——凭据已在本机 .env，直接调 API。
 agent_created: true
 ---
 
