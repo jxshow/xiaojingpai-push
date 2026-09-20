@@ -1,0 +1,15 @@
+# 运行时产物（不入库）
+__pycache__/
+*.pyc
+ready/
+uploaded.json
+output/
+
+# 微信凭据/状态（**含 access_token，绝不能提交**）
+.wechat_token_cache.json
+.wechat_push_state.json
+.env
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
