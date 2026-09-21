@@ -9,6 +9,11 @@ output/
 .wechat_token_cache.json
 .wechat_push_state.json
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
 
 # 编辑器 / 系统
 .DS_Store
