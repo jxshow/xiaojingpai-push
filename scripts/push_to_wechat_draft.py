@@ -54,6 +54,7 @@ ENV_CANDIDATES = [
     os.environ.get("WECHAT_ENV_FILE", ""),
     os.path.join(BASE_DIR, ".env"),
     r"C:\Users\xhshow\.workbuddy\wechat\.env",
+    os.path.join(os.path.expanduser("~"), ".workbuddy", "wechat", ".env"),
 ]
 ENV_PATH = next((p for p in ENV_CANDIDATES if p and os.path.exists(p)), ENV_CANDIDATES[1])
 TOKEN_CACHE_PATH = os.path.join(BASE_DIR, ".wechat_token_cache.json")

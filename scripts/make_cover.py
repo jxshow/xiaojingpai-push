@@ -34,8 +34,26 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 W, H = 900, 383
-FONT_BOLD = r"C:\Windows\Fonts\msyhbd.ttc"
-FONT_REG = r"C:\Windows\Fonts\msyh.ttc"
+
+def _pick_font(candidates):
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError("no usable CJK font found: " + "; ".join(candidates))
+
+# 跨平台字体：Windows 微软雅黑 / macOS 冬青黑体（Hiragino Sans GB，W6 粗体）
+if os.name == "nt":
+    FONT_BOLD = _pick_font([r"C:\Windows\Fonts\msyhbd.ttc", r"C:\Windows\Fonts\msyh.ttc"])
+    FONT_REG = _pick_font([r"C:\Windows\Fonts\msyh.ttc"])
+    FONT_BOLD_INDEX = 0
+    FONT_REG_INDEX = 0
+else:
+    _HIRAGINO = "/System/Library/Fonts/Hiragino Sans GB.ttc"
+    FONT_BOLD = _pick_font([_HIRAGINO, "/System/Library/Fonts/STHeiti Medium.ttc"])
+    FONT_REG = FONT_BOLD
+    # Hiragino Sans GB.ttc: index 1 = W6(粗)；STHeiti 单字重则退回 0
+    FONT_BOLD_INDEX = 1 if FONT_BOLD.endswith("Hiragino Sans GB.ttc") else 0
+    FONT_REG_INDEX = 0
 
 THEME_INDEX = os.environ.get(
     "XJP_THEME_INDEX",
@@ -146,11 +164,11 @@ def make_cover(title, subtitle, out_path, theme_id=None, override_color=None):
 
     # 文字
     size = 46
-    f1 = ImageFont.truetype(FONT_BOLD, size)
+    f1 = ImageFont.truetype(FONT_BOLD, size, index=FONT_BOLD_INDEX)
     while draw.textlength(title, font=f1) > W - 120 and size > 24:
         size -= 2
-        f1 = ImageFont.truetype(FONT_BOLD, size)
-    f2 = ImageFont.truetype(FONT_REG, 20)
+        f1 = ImageFont.truetype(FONT_BOLD, size, index=FONT_BOLD_INDEX)
+    f2 = ImageFont.truetype(FONT_REG, 20, index=FONT_REG_INDEX)
 
     draw.text((58, 98), title, font=f1, fill=(255, 255, 255))
     if subtitle:
