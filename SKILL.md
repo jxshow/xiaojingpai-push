@@ -11,7 +11,8 @@ agent_created: true
 公众号草稿是**可以用官方 API 写的**，凭据已存在本机：
 
 ```
-C:\Users\xhshow\.workbuddy\wechat\.env        # WECHAT_APPID / WECHAT_APPSECRET
+/Users/xhshow/.workbuddy/wechat/.env          # macOS: WECHAT_APPID / WECHAT_APPSECRET
+C:\Users\xhshow\.workbuddy\wechat\.env        # Windows 同上
 ```
 
 **绝对不要**为了推送去驱动浏览器登录 `mp.weixin.qq.com`：那会遇到扫码、验证码、会话不跨调用保留等一堆问题，而且完全没有必要。先 `--check` 确认凭据可用，再直接推送。
@@ -101,7 +102,7 @@ multipart 字段名 media；仅 JPG/PNG，且 < 1MB
 ## 已知坑
 
 1. **草稿接口强制要封面**：`thumb_media_id` 为空 → `40007 invalid media_id`。
-2. **IP 白名单**：`--check` 报 `40164` 说明本机公网 IP 不在公众号后台白名单，需先去后台加 IP。
+2. **IP 白名单**：`--check` 报 `40164` 说明本机公网 IP 不在公众号后台白名单，需先去后台加 IP。错误信息里的 IPv4（形如 `invalid ip 116.115.231.234`，忽略后面的 `ipv6 ::ffff:`）就是要加的那个；家用宽带多为动态 IP，换了出口会再报一次，把新 IP 加进去即可。**入口位置随后台改版会变**（2026-09 实测：鲸选AI 后台在「设置与开发 → 安全中心 → IP白名单」，老教程说的「基本配置」里反而没有），认准判定标准：白名单输入框要和 **AppID / AppSecret 同屏**（在「公众号开发信息」区块内）才是管 API 的那个；若那页没有 AppSecret 一栏，多半是登录/网页安全用的，加了对 `cgi-bin/token` 无效。多行填写、每行一个 IP，需管理员扫码，最长 10 分钟生效。
 3. **Git Bash 路径**：一律用 `C:/...`、`D:/...`，**不要用 `/c/...`**（会被错误拼成 `d:\c\...`）。
 4. **封面必须用 venv 解释器**（Pillow 装在 `envs/default`），其余脚本用 managed Python。
 5. **推送前必过校验**：`validate_gzh_html.py` 有 ERROR 就先修 HTML。
