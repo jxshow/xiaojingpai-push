@@ -8,12 +8,25 @@ agent_created: true
 
 ## 最重要的一条：不要开浏览器
 
-公众号草稿是**可以用官方 API 写的**，凭据已存在本机：
+公众号草稿是**可以用官方 API 写的**，凭据已存在本机。用户有**两个号**，AppID / AppSecret / IP 白名单 / 素材库 / 草稿箱各算各的：
 
 ```
-/Users/xhshow/.workbuddy/wechat/.env          # macOS: WECHAT_APPID / WECHAT_APPSECRET
-C:\Users\xhshow\.workbuddy\wechat\.env        # Windows 同上
+# macOS
+/Users/xhshow/.workbuddy/wechat/.env          # 鲸选AI   AppID wx453992d0b1ea0903
+/Users/xhshow/.workbuddy/wechat/.env.pro      # 鲸选Pro  AppID wx74413dd9b51f2f9c
+# Windows
+C:\Users\xhshow\.workbuddy\wechat\.env        # 鲸选AI   AppID wx453992d0b1ea0903
+C:\Users\xhshow\.workbuddy\wechat\.env.pro    # 鲸选Pro  AppID wx74413dd9b51f2f9c（白名单已加，可用）
 ```
+
+**切号 = 设一个环境变量**，脚本不用改：
+
+```bash
+export WECHAT_ENV_FILE="C:/Users/xhshow/.workbuddy/wechat/.env.pro"   # 鲸选Pro
+export WECHAT_ENV_FILE="C:/Users/xhshow/.workbuddy/wechat/.env"       # 鲸选AI
+```
+
+推之前问清楚往哪个号推；判断不了就按鲸选Pro 走并告知。
 
 **绝对不要**为了推送去驱动浏览器登录 `mp.weixin.qq.com`：那会遇到扫码、验证码、会话不跨调用保留等一堆问题，而且完全没有必要。先 `--check` 确认凭据可用，再直接推送。
 
@@ -94,15 +107,21 @@ multipart 字段名 media；仅 JPG/PNG，且 < 1MB
 
 | 项 | 值 |
 |---|---|
-| 作者 | `鲸选AI`（接口上限 8 字；标题上限 64 字） |
+| 作者 | 跟着号走：鲸选AI 写 `鲸选AI`，鲸选Pro 写 `鲸选Pro`（接口上限 8 字；标题上限 64 字） |
 | 封面尺寸 | 900×383，`make_cover.py` 生成 |
 | AGI绿 主色 | `#2ea250`（xiaojingpai-render 的 agi-green，用 `--color` 传） |
+| Pro蓝 主色 | `#0057ff`（pro-blue，鲸选Pro 的稿子用这个） |
 | 校验脚本 | `~/.workbuddy/skills/xiaojingpai/scripts/validate_html.py` |
 
 ## 已知坑
 
 1. **草稿接口强制要封面**：`thumb_media_id` 为空 → `40007 invalid media_id`。
-2. **IP 白名单**：`--check` 报 `40164` 说明本机公网 IP 不在公众号后台白名单，需先去后台加 IP。错误信息里的 IPv4（形如 `invalid ip 116.115.231.234`，忽略后面的 `ipv6 ::ffff:`）就是要加的那个；家用宽带多为动态 IP，换了出口会再报一次，把新 IP 加进去即可。**入口位置随后台改版会变**（2026-09 实测：鲸选AI 后台在「设置与开发 → 安全中心 → IP白名单」，老教程说的「基本配置」里反而没有），认准判定标准：白名单输入框要和 **AppID / AppSecret 同屏**（在「公众号开发信息」区块内）才是管 API 的那个；若那页没有 AppSecret 一栏，多半是登录/网页安全用的，加了对 `cgi-bin/token` 无效。多行填写、每行一个 IP，需管理员扫码，最长 10 分钟生效。
+2. **IP 白名单**：`--check` 报 `40164` 说明本机公网 IP 不在白名单。错误信息里的 IPv4（形如 `invalid ip 116.115.231.234`，忽略后面的 `ipv6 ::ffff:`）就是要加的那个；家用宽带多为动态 IP，换了出口会再报一次，把新 IP 加进去即可。
+   - **两个号各有一份白名单**，加错号等于没加 —— 排查时**先核对白名单页面上的 AppID 是否是当前凭据档里那个**（2026-10-18 实际踩到：IP 加在鲸选Pro 上，本机跑的是鲸选AI 凭据，一直 40164）。
+   - **入口 2025-12-01 起已迁到微信开发者平台** `developers.weixin.qq.com/platform/`（管理员微信扫码 → 我的业务 → 选号 → 开发密钥）。运营者身份登录「我的业务」是空的，必须用管理员。旧后台只剩一条迁移通知。
+   - 认准判定标准：白名单输入框要和 **AppID / AppSecret 同屏**才是管 API 的那个；若那页没有 AppSecret 一栏，多半是登录/网页安全用的，加了对 `cgi-bin/token` 无效。
+   - 多行填写、每行一个 IP，需管理员扫码，最长 10 分钟生效。只认 IPv4，别填 IPv6。
+   - **别点「重置 AppSecret」**，那玩意只能重置不能查看，一重置本机存的就作废。
 3. **Git Bash 路径**：一律用 `C:/...`、`D:/...`，**不要用 `/c/...`**（会被错误拼成 `d:\c\...`）。
 4. **封面必须用 venv 解释器**（Pillow 装在 `envs/default`），其余脚本用 managed Python。
 5. **推送前必过校验**：`validate_gzh_html.py` 有 ERROR 就先修 HTML。
