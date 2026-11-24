@@ -63,6 +63,8 @@ THEME_INDEX = os.environ.get(
 
 # 主题 ID → 关键词,用来在 markdown 表格行里匹配
 THEME_KEYWORDS = {
+    "business-gold": "鲸选商务金",
+    "feifan-brief": "鲸选商务金",
     "agi-green": "鲸选AGI绿",
     "byte-green": "鲸选字节绿",
     "magazine-green": "鲸选杂志绿",
@@ -77,6 +79,7 @@ THEME_KEYWORDS = {
 
 # 主题默认配色(主色, 浅底, 强调),覆盖 theme-index 表格
 THEME_DEFAULT_COLORS = {
+    "business-gold": ("#805d1d", "#f7f4e9", "#f1ce82"),
     "agi-green": ("#2ea250", "#EAF3DE", "#09fc3c"),
     "byte-green": ("#2ea250", "#EAF3DE", "#09fc3c"),
     "magazine-green": ("#2ea250", "#EAF3DE", "#09fc3c"),
@@ -88,6 +91,9 @@ THEME_DEFAULT_COLORS = {
     "moyu-ticket": ("#059669", "#FCD34D", "#10B981"),  # 票据感,辅以金色
     "olive": ("#1e1f23", "#3F3F46", "#ed7b2f"),       # 墨黑+橙强调
 }
+
+
+THEME_DEFAULT_COLORS["feifan-brief"] = THEME_DEFAULT_COLORS["business-gold"]
 
 
 def hex_to_rgb(h):
@@ -185,7 +191,7 @@ if __name__ == "__main__":
     ap.add_argument("subtitle", nargs="?", default="GPT-6 Astra 通关 48 关全记录")
     ap.add_argument("out", nargs="?", default=None)
     ap.add_argument("--theme", choices=list(THEME_KEYWORDS.keys()),
-                    help="主题 ID(agi-green / byte-green / magazine-green / pro-blue)")
+                    help="主题 ID(agi-green / byte-green / magazine-green / pro-blue / business-gold)")
     ap.add_argument("--color", help="自定义主色 hex,优先级高于 --theme")
     args = ap.parse_args()
 

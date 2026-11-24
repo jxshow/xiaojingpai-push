@@ -49,6 +49,8 @@ COVER_PY = os.environ.get(
 
 # 文件名里的主题中文名 → 主题 ID
 THEME_NAME_MAP = {
+    "非凡简报": "feifan-brief",
+    "商务金": "business-gold",
     "摸鱼绿": "moyu-green",
     "红白色系": "red-white",
     "红白": "red-white",
@@ -63,6 +65,7 @@ THEME_NAME_MAP = {
 # 主题 ID → 中文名（封面副标题用）
 THEME_CN = {v: k for k, v in THEME_NAME_MAP.items()}
 THEME_CN.update({
+    "feifan-brief": "商务金",
     "moyu-green": "摸鱼绿", "red-white": "红白色系", "graphite": "石墨极简",
     "zen": "留白禅意", "moyu-ticket": "摸鱼票据", "olive": "橄榄手记",
 })
